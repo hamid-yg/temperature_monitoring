@@ -1,53 +1,48 @@
-const awsIot = require('aws-iot-device-sdk');
-const sensor = require("node-dht-sensor");
+const express = require('express');
+const mqtt = require('mqtt');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const useDummyData = true
+const app = express();
+const port = process.env.PORT || 3000;
+const client = mqtt.connect(process.env.MQTT_BROKER_URL);
 
-const device = awsIot.device({
-    clientId: 'esp8266',
-    host: 'apnje8usx8np-ats.iot.us-west-2.amazonaws.com',
-    port: 8883,
-    keyPath: './esp8266/private.pem.key',
-    certPath: './esp8266/certificate.pem.crt',
-    caPath: './esp8266/esp8266.cert.pem',
+const { dynamoDB } = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const deviceRoutes = require('./routes/deviceRoutes');
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/api', userRoutes);
+app.use('/api', deviceRoutes);
+
+client.on('connect', () => {
+    client.subscribe('temperature');
 });
 
-const IoTDevice = {
-    serialNumber: "SN-D7F3C8947867",
-    date: new Date().toISOString(),
-    activated: true,
-    device: "esp8266",
-    type: "esp8266",
-    payload: {}
-}
+client.on('message', (topic, message) => {
+    const temperatureData = JSON.parse(message.toString());
 
-const home_topic = "home/temperature"
+    const params = {
+        TableName: 'TemperatureData',
+        Item: {
+            deviceId: temperatureData.deviceId,
+            timestamp: new Date().toISOString(),
+            temperature: temperatureData.temperature,
+        },
+    };
 
-const getSensorData = (cb) =>
-    useDummyData ? getDummySensorData(cb) : sensor.read(11, 2, function (err, temperature, humidity) {
-        if (!err) {
-            const temperatureData = {temp: `${temperature}°C`, humidity: `${humidity}%`};
-            console.log(`Getting Data => `, temperatureData);
-            return cb(temperatureData);
-        } else
-            console.log(err);
+    dynamoDB.put(params, (err, data) => {
+        if (err) {
+            console.error('Error storing data in DynamoDB:', err);
+        } else {
+            console.log('Temperature data stored in DynamoDB:', data);
+        }
+    });
 });
 
-const getDummySensorData = (cb) => {
-    const temperatureData = { temp: '100°C', humidity: '52%' }
-    return cb(temperatureData)
-}
-
-const sendData = (data) => {
-    const telemetryData = JSON.stringify({
-        ...IoTDevice,
-        payload: data
-    })
-    console.log('Sending Data => ', telemetryData);
-    return device.publish(home_topic, telemetryData);
-}
-
-device
-    .on('connect', () => setInterval(() => getSensorData(sendData), 3000))
-    .on('message', (topic, payload) => console.log('Response Message: ', topic, payload.toString()))
-    .on('error', (topic, payload) => console.log('Error: ', topic, payload.toString()));
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
