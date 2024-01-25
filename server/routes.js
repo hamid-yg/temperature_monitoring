@@ -2,9 +2,8 @@
 
 const express = require('express');
 const router = express.Router();
-const UserModel = require('../models/userModel');
+const UserModel = require('./model');
 
-// Create a new user
 router.post('/users', async (req, res) => {
   const { username, email } = req.body;
 
@@ -17,7 +16,6 @@ router.post('/users', async (req, res) => {
   }
 });
 
-// Get user by ID
 router.get('/users/:userId', async (req, res) => {
   const { userId } = req.params;
 
