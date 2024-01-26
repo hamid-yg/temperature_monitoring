@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const mqtt = require('mqtt');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ client.on('message', async (receivedTopic, message) => {
     }
 });
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
