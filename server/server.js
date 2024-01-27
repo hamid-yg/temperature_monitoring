@@ -22,6 +22,7 @@ const device = awsIot.device({
     privateKey: Buffer.from(process.env.PRIVATE_KEY, 'utf-8'),
     clientCert: Buffer.from(process.env.CERTIFICATE_IOT, 'utf-8'),
     caCert: Buffer.from(process.env.AMAZON_ROOT, 'utf-8'),
+    protocol: 'mqtts',
 });
 
 device.on('error', (error) => {
