@@ -16,12 +16,19 @@ const device = awsIot.device({
     clientId: 'ArduinoSoft',
     host: process.env.MQTT_BROKER_URL,
     port: 8883,
+    // privateKey: process.env.PRIVATE_KEY,
+    // clientCert: process.env.CERTIFICATE_IOT,
+    // caCert: process.env.AMAZON_ROOT,
     privateKey: Buffer.from(process.env.PRIVATE_KEY, 'utf-8'),
     clientCert: Buffer.from(process.env.CERTIFICATE_IOT, 'utf-8'),
     caCert: Buffer.from(process.env.AMAZON_ROOT, 'utf-8'),
 });
 
-device.on('connect', () => {
+device.on('error', (error) => {
+    console.log('Error:', error);
+});
+
+device.on('connect', (error) => {
     console.log('Device connected successfully');
 
     device.subscribe(topic, (err) => {
