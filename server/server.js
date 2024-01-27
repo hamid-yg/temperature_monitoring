@@ -11,10 +11,18 @@ const DynamoDBService = require('./db');
 const topic = "esp8266/pub";
 const awsIot = require('aws-iot-device-sdk');
 
+console.log(process.env.PRIVATE_KEY);
+console.log(process.env.CERTIFICATE_IOT);
+console.log(process.env.AMAZON_ROOT);
+console.log(process.env.MQTT_BROKER_URL);
+
 const device = awsIot.device({
     clientId: 'ArduinoSoft',
     host: process.env.MQTT_BROKER_URL,
     port: 8883,
+    keyPath: '../PrivateKey.key',
+    certPath: '../CertificateIoT.crt',
+    caPath: '../AmazonRoot.pem',
     privateKey: process.env.PRIVATE_KEY,
     clientCert: process.env.CERTIFICATE_IOT,
     caCert: process.env.AMAZON_ROOT,
