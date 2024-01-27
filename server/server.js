@@ -15,9 +15,9 @@ const device = awsIot.device({
     clientId: 'ArduinoSoft',
     host: process.env.MQTT_BROKER_URL,
     port: 8883,
-    keyPath: process.env.PRIVATE_KEY,
-    certPath: process.env.CERTIFICATE_IOT,
-    caPath: process.env.AMAZON_ROOT,
+    privateKey: process.env.PRIVATE_KEY,
+    caCert: process.env.CERTIFICATE_IOT,
+    clientCert: process.env.AMAZON_ROOT,
 });
 
 device.on('connect', () => {
