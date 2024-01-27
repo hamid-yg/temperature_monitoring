@@ -16,8 +16,8 @@ const device = awsIot.device({
     host: process.env.MQTT_BROKER_URL,
     port: 8883,
     privateKey: process.env.PRIVATE_KEY,
-    caCert: process.env.CERTIFICATE_IOT,
-    clientCert: process.env.AMAZON_ROOT,
+    clientCert: process.env.CERTIFICATE_IOT,
+    caCert: process.env.AMAZON_ROOT,
 });
 
 device.on('connect', () => {
