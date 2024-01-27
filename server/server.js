@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const { Buffer } = require('buffer');
 
 dotenv.config();
 
@@ -11,21 +12,13 @@ const DynamoDBService = require('./db');
 const topic = "esp8266/pub";
 const awsIot = require('aws-iot-device-sdk');
 
-console.log(process.env.PRIVATE_KEY);
-console.log(process.env.CERTIFICATE_IOT);
-console.log(process.env.AMAZON_ROOT);
-console.log(process.env.MQTT_BROKER_URL);
-
 const device = awsIot.device({
     clientId: 'ArduinoSoft',
     host: process.env.MQTT_BROKER_URL,
     port: 8883,
-    keyPath: '../PrivateKey.key',
-    certPath: '../CertificateIoT.crt',
-    caPath: '../AmazonRoot.pem',
-    privateKey: process.env.PRIVATE_KEY,
-    clientCert: process.env.CERTIFICATE_IOT,
-    caCert: process.env.AMAZON_ROOT,
+    privateKey: Buffer.from(process.env.PRIVATE_KEY, 'utf-8'),
+    clientCert: Buffer.from(process.env.CERTIFICATE_IOT, 'utf-8'),
+    caCert: Buffer.from(process.env.AMAZON_ROOT, 'utf-8'),
 });
 
 device.on('connect', () => {
