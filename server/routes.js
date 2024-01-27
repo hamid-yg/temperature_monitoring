@@ -1,14 +1,12 @@
-// routes/userRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const UserModel = require('./model');
 
 router.post('/users', async (req, res) => {
-  const { username, email } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const userId = await UserModel.createUser(username, email);
+    const userId = await UserModel.createUser( email, password);
     res.status(201).json({ userId, message: 'User created successfully' });
   } catch (error) {
     console.log(error)
@@ -16,11 +14,11 @@ router.post('/users', async (req, res) => {
   }
 });
 
-router.get('/users/:userId', async (req, res) => {
-  const { userId } = req.params;
+router.post('/users/login', async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    const user = await UserModel.getUser(userId);
+    const user = await UserModel.getUser(email, password);
 
     if (user) {
       res.json(user);
@@ -33,14 +31,14 @@ router.get('/users/:userId', async (req, res) => {
 });
 
 router.get('/users', async (req, res) => {
-    const { userRole } = req.query;
+  const { userRole } = req.query;
 
-    try {
-        const users = await UserModel.getUsers(userRole);
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+  try {
+      const users = await UserModel.getUsers(userRole);
+      res.json(users);
+  } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;
